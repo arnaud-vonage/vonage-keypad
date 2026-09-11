@@ -1,0 +1,39 @@
+project:
+    name: vonage-keypad
+instance:
+    name: dev
+    runtime: nodejs22
+    region: aws.apse1
+    application-id: "YOUR_APPLICATION_ID"
+    capabilities:
+        - voice
+        - rtc
+    environment:
+        - name: USERNAME
+          secret: USERNAME
+        - name: PASSWORD
+          secret: PASSWORD
+    secrets:
+        - USERNAME
+        - PASSWORD
+    build-script: npm run build
+    entrypoint:
+        - node
+        - index.js
+debug:
+    name: debug
+    application-id: "YOUR_APPLICATION_ID"
+    capabilities:
+        - voice
+        - rtc
+    environment:
+        - name: USERNAME
+          secret: USERNAME
+        - name: PASSWORD
+          secret: PASSWORD
+    secrets:
+        - USERNAME
+        - PASSWORD
+    entrypoint:
+        - node
+        - index.js

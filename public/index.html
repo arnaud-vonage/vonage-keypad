@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f2ed">
+    <title>Vonage Keypad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <main class="dialer" aria-labelledby="page-title">
+        <header>
+            <div class="brand-mark" aria-hidden="true">V</div>
+            <div>
+                <h1 id="page-title">Keypad</h1>
+                <p id="status-text" class="status" data-state="idle" aria-live="polite">Starting...</p>
+            </div>
+        </header>
+
+        <label class="number-field">
+            <span class="sr-only">Phone number</span>
+            <span class="prefix">+</span>
+            <input id="phone-number" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="Enter number" autofocus>
+        </label>
+
+        <label class="from-field">
+            <span>Call from</span>
+            <select id="from-number" disabled>
+                <option value="">Loading owned numbers...</option>
+            </select>
+        </label>
+
+        <section id="keypad" class="keypad" aria-label="Dial pad">
+            <button type="button" data-digit="1"><strong>1</strong><small>&nbsp;</small></button>
+            <button type="button" data-digit="2"><strong>2</strong><small>ABC</small></button>
+            <button type="button" data-digit="3"><strong>3</strong><small>DEF</small></button>
+            <button type="button" data-digit="4"><strong>4</strong><small>GHI</small></button>
+            <button type="button" data-digit="5"><strong>5</strong><small>JKL</small></button>
+            <button type="button" data-digit="6"><strong>6</strong><small>MNO</small></button>
+            <button type="button" data-digit="7"><strong>7</strong><small>PQRS</small></button>
+            <button type="button" data-digit="8"><strong>8</strong><small>TUV</small></button>
+            <button type="button" data-digit="9"><strong>9</strong><small>WXYZ</small></button>
+            <span aria-hidden="true"></span>
+            <button type="button" data-digit="0"><strong>0</strong><small>+</small></button>
+            <button id="backspace" type="button" aria-label="Delete last digit">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H9l-7 7 7 7h12V5Z"/><path d="m11 9 6 6m0-6-6 6"/></svg>
+            </button>
+        </section>
+
+        <button id="call-button" class="call-button" type="button" disabled aria-label="Call number">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.69 2.8a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.33 1.84.56 2.8.69A2 2 0 0 1 22 16.92Z"/></svg>
+            <span>Call</span>
+        </button>
+    </main>
+    <script type="module" src="/app.js"></script>
+</body>
+</html>
