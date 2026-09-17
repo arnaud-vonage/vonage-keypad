@@ -134,6 +134,29 @@ vcr deploy
 
 デプロイ完了時に表示される URL をブラウザで開き、手順 6 の認証情報でログインします。
 
+## VCR を使用しないローカル実行
+
+Vonage から `localhost` へ直接 Webhook を送ることはできないため、ngrok などの HTTPS トンネルを使用します。VCR 用 Application の Callback Router 設定を上書きしないよう、Voice と RTC を有効にしたローカル開発専用の Vonage Application を使用してください。
+
+1. `.env.example` を `.env` にコピーし、API キー、API シークレット、ローカル用 Application ID、Basic 認証情報を設定します。
+2. ローカル用 Application の秘密鍵を `private.key` として配置します。
+3. アプリとトンネルを起動します。
+
+```sh
+cp .env.example .env
+npm run local
+ngrok http 3000
+```
+
+4. ローカル用 Vonage Application の Voice Webhook を、ngrok が表示した HTTPS URL に設定します。
+
+```text
+Answer URL: https://YOUR-NGROK-HOST/answer  (POST)
+Event URL:  https://YOUR-NGROK-HOST/event   (POST)
+```
+
+ブラウザでは同じ ngrok URL を開きます。トンネル URL が変わった場合は Application の Webhook URL も更新してください。ローカルモードでは VCR Callback Router への登録を行わず、`.env` の Application ID と秘密鍵で Client SDK JWT を生成します。
+
 ## 使用方法
 
 1. ブラウザでダッシュボードを開き、Basic 認証を行います。

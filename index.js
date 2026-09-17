@@ -1,18 +1,53 @@
 import path from 'node:path';
 import { timingSafeEqual } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
-import { vcr, Voice } from '@vonage/vcr-sdk';
+import { tokenGenerate } from '@vonage/jwt';
 
-const session = vcr.createSession();
-const voice = new Voice(session);
+const projectDirectory = path.dirname(fileURLToPath(import.meta.url));
+const localMode = process.env.LOCAL_MODE === 'true';
+let createVonageToken;
+let configuredPrivateKey;
 
-await voice.onCall('answer');
-await voice.onCallEvent({ callback: 'event' });
+if (localMode) {
+    const applicationId = process.env.API_APPLICATION_ID;
+    const requiredVariables = [
+        'API_ACCOUNT_ID',
+        'API_ACCOUNT_SECRET',
+        'API_APPLICATION_ID',
+        'BASIC_AUTH_USERNAME',
+        'BASIC_AUTH_PASSWORD',
+    ];
+    const missingVariables = requiredVariables.filter((name) => !process.env[name]);
+
+    if (!process.env.PRIVATE_KEY_PATH && !process.env.PRIVATE_KEY) missingVariables.push('PRIVATE_KEY_PATH');
+    if (missingVariables.length) {
+        throw new Error(`Local configuration missing: ${missingVariables.join(', ')}. Copy .env.example to .env and fill in the values.`);
+    }
+
+    configuredPrivateKey = process.env.PRIVATE_KEY_PATH
+        ? await readFile(path.resolve(projectDirectory, process.env.PRIVATE_KEY_PATH))
+        : process.env.PRIVATE_KEY;
+
+    createVonageToken = ({ subject, aclPaths, exp }) => tokenGenerate(applicationId, configuredPrivateKey, {
+        subject,
+        acl: aclPaths ? { paths: aclPaths } : undefined,
+        exp,
+    });
+} else {
+    const { vcr, Voice } = await import('@vonage/vcr-sdk');
+    const session = vcr.createSession();
+    const voice = new Voice(session);
+
+    await voice.onCall('answer');
+    await voice.onCallEvent({ callback: 'event' });
+    createVonageToken = (params) => vcr.createVonageToken(params);
+}
 
 const app = express();
-const port = process.env.VCR_PORT || 3000;
-const publicDirectory = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
+const port = process.env.PORT || process.env.VCR_PORT || 3000;
+const publicDirectory = path.join(projectDirectory, 'public');
 const clientUsername = 'keypad-user';
 const clientRegion = 'AP';
 const userApiUrls = {
@@ -31,8 +66,8 @@ app.get('/_/health', (_req, res) => res.sendStatus(200));
 app.use((req, res, next) => {
     if (req.path === '/answer' || req.path === '/event') return next();
 
-    const username = process.env.USERNAME;
-    const password = process.env.PASSWORD;
+    const username = process.env.BASIC_AUTH_USERNAME || process.env.USERNAME;
+    const password = process.env.BASIC_AUTH_PASSWORD || process.env.PASSWORD;
     const credentials = parseBasicCredentials(req.get('authorization'));
 
     if (username && password
@@ -82,7 +117,7 @@ app.get('/numbers', async (_req, res) => {
 app.get('/session', async (_req, res) => {
     res.set('Cache-Control', 'no-store');
     const applicationId = process.env.API_APPLICATION_ID;
-    const privateKey = process.env.PRIVATE_KEY;
+    const privateKey = configuredPrivateKey || process.env.PRIVATE_KEY;
 
     if (!applicationId || !privateKey)
         return res.status(503).json({ error: 'VCR credentials are not configured.' });
@@ -107,7 +142,7 @@ app.get('/session', async (_req, res) => {
         '/*/legs/**': {},
     };
 
-    const jwt = vcr.createVonageToken({
+    const jwt = createVonageToken({
         subject: clientUsername,
         aclPaths: acl,
         exp: Math.floor(Date.now() / 1000) + 15 * 60,
@@ -117,7 +152,7 @@ app.get('/session', async (_req, res) => {
 });
 
 async function provisionClientUser(username, apiUrl) {
-    const adminJwt = vcr.createVonageToken({
+    const adminJwt = createVonageToken({
         exp: Math.floor(Date.now() / 1000) + 15 * 60,
     });
     const response = await fetch(`${apiUrl}/v1/users`, {
@@ -251,4 +286,6 @@ app.post('/event', (req, res) => {
     res.sendStatus(204);
 });
 
-app.listen(port, '0.0.0.0');
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Listening on port ${port} (${localMode ? 'local' : 'VCR'} mode)`);
+});

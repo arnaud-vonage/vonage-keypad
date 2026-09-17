@@ -11,10 +11,12 @@
   "scripts": {
     "build": "esbuild src/app.js --bundle --minify --outfile=public/app.js",
     "start": "npm run build && node index.js",
+    "local": "npm run build && LOCAL_MODE=true node --env-file-if-exists=.env index.js",
     "debug": "vcr debug"
   },
   "dependencies": {
     "@vonage/client-sdk": "^2.7.1",
+    "@vonage/jwt": "^1.17.1",
     "@vonage/vcr-sdk": "^2.1.6",
     "express": "^4.21.2"
   },
