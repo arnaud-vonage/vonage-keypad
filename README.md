@@ -157,6 +157,9 @@ Event URL:  https://YOUR-NGROK-HOST/event   (POST)
 
 ブラウザでは同じ ngrok URL を開きます。トンネル URL が変わった場合は Application の Webhook URL も更新してください。ローカルモードでは VCR Callback Router への登録を行わず、`.env` の Application ID と秘密鍵で Client SDK JWT を生成します。
 
+<img width="1493" height="851" alt="Screenshot 2026-09-25 at 11 03 18" src="https://github.com/user-attachments/assets/3ce0f497-1436-4514-8285-de98aba08d78" />
+
+
 ## 使用方法
 
 1. ブラウザでダッシュボードを開き、Basic 認証を行います。
