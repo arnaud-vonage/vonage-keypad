@@ -178,6 +178,10 @@ Vonage 番号への通常着信では外部オペレーターへ転送せず、�
 
 Client SDK からの発信では、`custom_data` に含まれる宛先と発信元を検証し、Phone エンドポイントへ接続する NCCO を返します。
 
+着信機能を有効にするには、ダッシュボードで電話番号を連携させる必要があります。
+
+<img width="1500" height="832" alt="Screenshot 2026-10-07 at 11 43 33" src="https://github.com/user-attachments/assets/f94a312c-5439-4baa-8e26-8009c23dd007" />
+
 ## 認証と公開エンドポイント
 
 次のリソースは Basic 認証で保護されます。
